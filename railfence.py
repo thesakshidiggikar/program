@@ -1,71 +1,132 @@
-# def cipher(s, key, graph=False):
-#     down = True
-#     raw_out = []
-#     out = ""
-#     i = 0
-#     for x in range(key):
-#         raw_out.append({})
-#     for pos in range(len(s)):
-#         raw_out[i][pos] = s[pos]
-#         if i == key - 1:
-#             down = False
-#         if i == 0:
-#             down = True
-#         if down:
-#             i = i + 1
-#         else:
-#             i = i - 1
-#     for p in raw_out:
-#         for q in p:
-#             out += p[q]
-#     if graph:
-#         return raw_out
-#     return out
-
-
-# def decipher(s, key):
-#     map_list = cipher(
-#         s, key, True
-#     )  # CREATING JUST FOR MAPPING - WHICHth CHARACTER OF THE STRING - IS WHICHth CHARACTER OF THE CIPHER
-#     new = {}
-#     out = ""
-#     s_counter = 0
-#     for x in map_list:
-#         for y in x:
-#             new[y] = s[s_counter]
-#             s_counter += 1
-#     for p in new:
-#         out += new[p]
-#     return map_list
-# _____________________________________________________________________
-def rail_fence_cipher(text, key, encrypt=True):
-    if encrypt:
-        return (
-              "".join(text[i] for i in range(len(text)) if i % (2 * key - 2) == 0)
-            + "".join(text[i] for i in range(len(text)) if i % (2 * key - 2) == 1)
-            + "".join(text[i] for i in range(len(text)) if i % (2 * key - 2) > 1 and i % (2 * key - 2) < key)
-            + "".join(text[i] for i in range(len(text)) if i % (2 * key - 2) >= key)
-        )
-    else:
-        order = sorted(
-            range(len(text)),
-            key=lambda i: (
-                i // (key - 1)
-                if i % (2 * key - 2) == 0
-                else (
-                    (key - 1) - i % (key - 1)
-                    if i % (2 * key - 2) >= key
-                    else 2 * (i // (key - 1)) + 1
-                )
-            ),
-        )
-        return "".join(text[order.index(i)] for i in range(len(text)))
-
-
-# Example Usage:
-plaintext = "Hello, World!"
-key = 3
-encrypted_text = rail_fence_cipher(plaintext, key, encrypt=True)
-print("Encrypted:", encrypted_text)
-decrypted_text = rail_fence_cipher(encrypted_text, key, encrypt=False)
-print("Decrypted:", decrypted_text)
+# Python3 program to illustrate
+# Rail Fence Cipher Encryption
+# and Decryption
+ 
+# function to encrypt a message
+def encryptRailFence(text, key):
+ 
+    # create the matrix to cipher
+    # plain text key = rows ,
+    # length(text) = columns
+    # filling the rail matrix
+    # to distinguish filled
+    # spaces from blank ones
+    rail = [['\n' for i in range(len(text))]
+                for j in range(key)]
+     
+    # to find the direction
+    dir_down = False
+    row, col = 0, 0
+     
+    for i in range(len(text)):
+         
+        # check the direction of flow
+        # reverse the direction if we've just
+        # filled the top or bottom rail
+        if (row == 0) or (row == key - 1):
+            dir_down = not dir_down
+         
+        # fill the corresponding alphabet
+        rail[row][col] = text[i]
+        col += 1
+         
+        # find the next row using
+        # direction flag
+        if dir_down:
+            row += 1
+        else:
+            row -= 1
+    # now we can construct the cipher
+    # using the rail matrix
+    result = []
+    for i in range(key):
+        for j in range(len(text)):
+            if rail[i][j] != '\n':
+                result.append(rail[i][j])
+    return("" . join(result))
+     
+# This function receives cipher-text
+# and key and returns the original
+# text after decryption
+def decryptRailFence(cipher, key):
+ 
+    # create the matrix to cipher
+    # plain text key = rows ,
+    # length(text) = columns
+    # filling the rail matrix to
+    # distinguish filled spaces
+    # from blank ones
+    rail = [['\n' for i in range(len(cipher))]
+                for j in range(key)]
+     
+    # to find the direction
+    dir_down = None
+    row, col = 0, 0
+     
+    # mark the places with '*'
+    for i in range(len(cipher)):
+        if row == 0:
+            dir_down = True
+        if row == key - 1:
+            dir_down = False
+         
+        # place the marker
+        rail[row][col] = '*'
+        col += 1
+         
+        # find the next row
+        # using direction flag
+        if dir_down:
+            row += 1
+        else:
+            row -= 1
+             
+    # now we can construct the
+    # fill the rail matrix
+    index = 0
+    for i in range(key):
+        for j in range(len(cipher)):
+            if ((rail[i][j] == '*') and
+            (index < len(cipher))):
+                rail[i][j] = cipher[index]
+                index += 1
+         
+    # now read the matrix in
+    # zig-zag manner to construct
+    # the resultant text
+    result = []
+    row, col = 0, 0
+    for i in range(len(cipher)):
+         
+        # check the direction of flow
+        if row == 0:
+            dir_down = True
+        if row == key-1:
+            dir_down = False
+             
+        # place the marker
+        if (rail[row][col] != '*'):
+            result.append(rail[row][col])
+            col += 1
+             
+        # find the next row using
+        # direction flag
+        if dir_down:
+            row += 1
+        else:
+            row -= 1
+    return("".join(result))
+ 
+# Driver code
+if __name__ == "__main__":
+    print(encryptRailFence("attack at once", 2))
+    print(encryptRailFence("GeeksforGeeks ", 3))
+    print(encryptRailFence("defend the east wall", 3))
+     
+    # Now decryption of the
+    # same cipher-text
+    print(decryptRailFence("GsGsekfrek eoe", 3))
+    print(decryptRailFence("atc toctaka ne", 2))
+    print(decryptRailFence("dnhaweedtees alf  tl", 3))
+ 
+# This code is contributed
